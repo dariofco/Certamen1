@@ -1,0 +1,1 @@
+# Certamen-1---IA-Generativa-para-la-Gesti-n-Industrial
