@@ -1,0 +1,18 @@
+{
+  "modelo_seleccionado": "YOLO11n-cls (Ultralytics)",
+  "accuracy_test": 89.0,
+  "balanced_accuracy_test": 89.7,
+  "comparacion": {
+    "CLIP (Zero-Shot)": 71.6,
+    "EfficientNet-B0 (timm)": 75.3,
+    "YOLO11n-cls (Ultralytics)": 89.7
+  },
+  "clases": {
+    "cardboard": "Cartón",
+    "glass": "Vidrio",
+    "metal": "Metal",
+    "paper": "Papel",
+    "plastic": "Plástico",
+    "trash": "Basura General"
+  }
+}

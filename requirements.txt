@@ -1,0 +1,9 @@
+streamlit
+ultralytics
+plotly
+pandas
+numpy
+Pillow
+google-genai
+torch
+torchvision
