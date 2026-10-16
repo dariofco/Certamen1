@@ -75,7 +75,7 @@ INFO_CLASES = {
 
 UMBRAL_CONFIANZA = 65.0  # Por debajo de 65% se solicita revisión humana obligatoria
 
-# Estilos CSS ejecutivos inspirados en el dashboard visto en clases
+# Estilos CSS ejecutivos inspirados en el dashboard visto en clases (con ajuste para textos métricos)
 st.markdown(f"""
 <style>
   .block-container {{ padding-top: 1.4rem; max-width: 1350px; }}
@@ -83,6 +83,7 @@ st.markdown(f"""
   .encabezado h1 {{ font-size: 1.95rem; margin: 0; color: {TINTA}; }}
   .encabezado p {{ margin: 4px 0 0; color: {TENUE}; font-size: 0.95rem; }}
   [data-testid="stMetric"] {{ background: {GRIS_FONDO}; border: 1px solid {GRIS_BORDE}; border-radius: 8px; padding: 12px 16px; }}
+  [data-testid="stMetricValue"] {{ font-size: 1.35rem !important; }}
   .caja-ok {{ background: {VERDE_SUAVE}; border-left: 5px solid {VERDE_PRINCIPAL}; padding: 14px 18px; border-radius: 6px; margin: 10px 0; }}
   .caja-alerta {{ background: #FFF3E0; border-left: 5px solid {NARANJA_ALERTA}; padding: 14px 18px; border-radius: 6px; margin: 10px 0; color: #BF360C; }}
   .caja-etica {{ background: #ECEFF1; border: 1px solid #CFD8DC; padding: 10px 14px; border-radius: 6px; font-size: 0.86rem; color: {TENUE}; margin-top: 14px; }}
@@ -138,7 +139,6 @@ with st.sidebar:
     
     st.markdown("---")
     st.markdown("### 🤖 Configuración LLM (Gemini)")
-    # Buscamos la clave primero en st.secrets (Streamlit Cloud) o variables de entorno
     api_key_secreta = None
     try:
         if "GEMINI_API_KEY" in st.secrets:
@@ -212,10 +212,9 @@ with tabs[0]:
     with col_der:
         st.subheader("2. Resultado de Clasificación y Protocolo IA")
         if imagen_actual is not None:
-            # Ejecutamos inferencia con nuestro modelo YOLO11n-cls
             resultado = modelo(imagen_actual, verbose=False)[0]
             probs = resultado.probs.data.cpu().numpy()
-            nombres_modelo = resultado.names  # dict {idx: 'cardboard', ...}
+            nombres_modelo = resultado.names
 
             idx_top1 = int(resultado.probs.top1)
             clase_en = nombres_modelo[idx_top1]
@@ -224,13 +223,11 @@ with tabs[0]:
                 "nombre": clase_en, "icono": "♻️", "contenedor": "General", "color": VERDE_PRINCIPAL, "riesgo": "N/A"
             })
 
-            # Tarjetas de métricas diferenciando Confianza actual vs Accuracy del modelo en Test
             k1, k2, k3 = st.columns(3)
             k1.metric("Clase Predicha", f"{meta_clase['icono']} {meta_clase['nombre'].split(' (')[0]}")
             k2.metric("Confianza en esta foto", f"{confianza:.1f}%")
             k3.metric("Accuracy Modelo (Test)", f"{info_metricas['balanced_accuracy_test']:.1f}%", "Métrica global")
 
-            # Advertencia responsable según el umbral de confianza
             if confianza < UMBRAL_CONFIANZA:
                 st.markdown(f"""
                 <div class="caja-alerta">
@@ -247,7 +244,6 @@ with tabs[0]:
                 </div>
                 """, unsafe_allow_html=True)
 
-            # Gráfico de barras horizontal con las probabilidades de todas las clases
             df_probs = pd.DataFrame({
                 "Clase_EN": [nombres_modelo[i] for i in range(len(probs))],
                 "Material": [f"{INFO_CLASES[nombres_modelo[i]]['icono']} {INFO_CLASES[nombres_modelo[i]]['nombre']}" for i in range(len(probs))],
@@ -274,9 +270,6 @@ with tabs[0]:
             )
             st.plotly_chart(fig, use_container_width=True)
 
-            # -----------------------------------------------------------------
-            # Botón de Recomendación Operativa con IA Generativa (Google Gemini)
-            # -----------------------------------------------------------------
             st.markdown("### 💬 Recomendación Operativa Generada por IA")
             top2_idx = int(np.argsort(probs)[::-1][1])
             segunda_clase = INFO_CLASES[nombres_modelo[top2_idx]]["nombre"]
@@ -321,7 +314,6 @@ with tabs[0]:
                         except Exception as e:
                             st.error(f"Error al conectar con la API de Gemini: {e}")
 
-        # Aviso ético permanente exigido por la rúbrica
         st.markdown("""
         <div class="caja-etica">
           <b>🛡️ Advertencia de Uso Responsable:</b> Esta aplicación es un prototipo académico desarrollado para el curso <i>IA Generativa para la Gestión Industrial (UDD)</i>. Sus resultados son orientativos y no reemplazan protocolos normativos de manejo de residuos peligrosos ni la supervisión de un operario humano, especialmente cuando la confianza del modelo es inferior al 65%.
