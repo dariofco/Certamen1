@@ -306,7 +306,7 @@ with tabs[0]:
                             Reglas estrictas: Limítate exclusivamente a gestión de residuos, reciclaje y seguridad industrial. Incluye al final una breve nota indicando que esta es una recomendación orientativa de uso educativo.
                             """
                             respuesta = cliente.models.generate_content(
-                                model="gemini-2.5-flash",
+                                model="gemini-3.8-flash",
                                 contents=prompt_responsable
                             )
                             st.markdown("#### 📋 Protocolo Recomendado por Gemini:")
